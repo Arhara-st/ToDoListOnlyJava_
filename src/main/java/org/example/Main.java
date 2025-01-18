@@ -7,8 +7,7 @@ ToDoSettings - файл со всей реализацией тудушки
 Tasks - описание задач = поля
 Status - in work/ new task / done
 
-/Что-то можно вынести из методов (какие-то переменные) в сам класс и под приват их поставить
-/JUNIT's сделать
+    !JUNIT's сделать
  */
 
 public class Main {
@@ -24,7 +23,7 @@ public class Main {
         todo.add(tasks2);
         todo.add(tasks3);
         System.out.println("""
-                add - добавление элементов\
+                add - добавление элементов
                 list - вывести список задач
                 edit - редактировать задачу
                 delete - удалить задачу
