@@ -1,8 +1,6 @@
 package org.example;
-import lombok.Data;
 import java.util.*;
 
-@Data
 public class ToDoSettings {
 
     private final List<Tasks> task = new ArrayList<>();
@@ -123,7 +121,4 @@ public class ToDoSettings {
     }
 
 
-//    public List<Tasks> getTasks() {
-//        return this.task;
-//    }
 }
