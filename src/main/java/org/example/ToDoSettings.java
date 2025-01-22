@@ -13,24 +13,13 @@ public class ToDoSettings {
 
     // добавление задачи
     public void addTask() {
-        boolean flag = false;
         System.out.println("Добавление новой задачи\nИмя задачи:");
         Scanner scanner = new Scanner(System.in);
         String name = scanner.nextLine();
         System.out.println("Описание задачи:");
         String description = scanner.nextLine();
         System.out.println("До какого числа нужно выполнить задачу:");
-        while (!flag) {
-            try {
-                timeWork = scanner.nextInt();
-                if (timeWork >= 1 && timeWork <= 31) {
-                    flag = true;
-                } else System.out.println("Ошибка: не бывает в месяце столько дней");
-            } catch (InputMismatchException e) {
-                System.out.println("Ошибка: введено не число. Пожалуйста, попробуйте снова.");
-                scanner.nextLine();
-            }
-        }
+        int timeWork = addTaskTimeWork();
 
         Tasks tasks = new Tasks(name, description, timeWork, "new task");
         this.task.add(tasks);
@@ -48,7 +37,6 @@ public class ToDoSettings {
 
     // изменение задачи
     public void editTask(){
-        boolean flag = false;
         System.out.println("Какую задачу нужно изменить?");
         Scanner scanner = new Scanner(System.in);
         String editTaskName = scanner.nextLine(); // имя задачи которую редачим
@@ -59,30 +47,19 @@ public class ToDoSettings {
         System.out.println("Статус задачи: done / in work / new task");
         String newStatus = scanner.nextLine();
         System.out.println("Срок задачи (до какого числа):");
-        while (!flag) {
-            try {
-                timeWork = scanner.nextInt();
-                if (timeWork >= 1 && timeWork <= 31) {
-                    flag = true;
-                } else System.out.println("Ошибка: не бывает в месяце столько дней");
-            } catch (InputMismatchException e) {
-                System.out.println("Ошибка: введено не число. Пожалуйста, попробуйте снова.");
-                scanner.nextLine();
-            }
-        }
-        scanner.nextLine();
+        int newTimeWork = addTaskTimeWork();
 
-        int finalNewTaskTimeWork = timeWork;
         task.stream()
                 .filter(task -> task.getTaskName().equals(editTaskName))
                 .findFirst()
-                .ifPresent(task -> {
+                .ifPresentOrElse(task -> {
                     task.setTaskName(newTaskName);
                     task.setTaskDescription(newTaskDescription);
-                    task.setTimeWorks(finalNewTaskTimeWork);
+                    task.setTimeWorks(newTimeWork);
                     task.setTaskStatus(newStatus);
-                });
-        System.out.println("Задача успешно изменена");
+                    System.out.println("Задача успешно изменена");
+                }, () -> System.out.println("Задача не найдена и ничего не изменилось"));
+
     }
 
     // удаление задачи
@@ -118,6 +95,24 @@ public class ToDoSettings {
         task.stream().sorted(Comparator.comparing(Tasks::getTimeWorks))
                 .map(tasks -> tasks.getTimeWorks() + " | " + tasks.getTaskName())
                 .forEach(System.out::println);
+    }
+
+    // добавление срока задачи
+    private int addTaskTimeWork(){
+        boolean flag = false;
+        Scanner scanner = new Scanner(System.in);
+        while (!flag) {
+            try {
+                timeWork = scanner.nextInt();
+                if (timeWork >= 1 && timeWork <= 31) {
+                    flag = true;
+                } else System.out.println("Ошибка: не бывает в месяце столько дней");
+            } catch (InputMismatchException e) {
+                System.out.println("Ошибка: введено не число. Пожалуйста, попробуйте снова.");
+                scanner.nextLine();
+            }
+        }
+        return timeWork;
     }
 
 
