@@ -11,18 +11,17 @@ Status - in work/ new task / done
  */
 
 public class Main {
+    static private final TaskService todo = new TaskService();
+
     public static void main(String[] args) {
+        init(args);
+        process(args);
+    }
+
+    // запуск консоли
+    public static void process(String[] args) {
         boolean flag = true;
-        ToDoSettings todo = new ToDoSettings();
-
-        Tasks tasks = new Tasks("Сходить в магазин","Купить хлеба", 14, "new task");
-        Tasks tasks2 = new Tasks("Сходить погулять","пройти много км пешком", 14, "new task");
-        Tasks tasks3 = new Tasks("в доту катнуть","+40 ммр", 15, "new task");
-
-        todo.add(tasks);
-        todo.add(tasks2);
-        todo.add(tasks3);
-        System.out.println("""
+        String helloMessage = """
                 add - добавление элементов
                 list - вывести список задач
                 edit - редактировать задачу
@@ -30,14 +29,15 @@ public class Main {
                 filter - отфильтровать задачу по статусу
                 sort - отсортировать задачи
                 exit - выход из системы
-                """);
+                """;
+        System.out.println(helloMessage);
         while (flag) {
             Scanner scanner = new Scanner(System.in);
             String command = scanner.nextLine().toLowerCase().trim();
 
             switch (command) {
                 case "add":
-                    todo.addTask();
+                    todo.add();
                     break;
 
                 case "exit":
@@ -45,15 +45,15 @@ public class Main {
                     break;
 
                 case "list":
-                    todo.printTasks();
+                    todo.print();
                     break;
 
                 case "edit":
-                    todo.editTask();
+                    todo.edit();
                     break;
 
                 case "delete":
-                    todo.deleteTask();
+                    todo.delete();
                     break;
 
                 case "filter":
@@ -64,10 +64,21 @@ public class Main {
                     todo.filterTimeWork();
                     break;
                 default:
-                    System.out.println("Попробуйте еще раз");
+                    System.out.println("Попробуйте еще раз:\n" + helloMessage);
             }
         }
 
 
+    }
+
+    // инициализация задач
+    public static void init(String[] args) {
+        Task task = new Task("Сходить в магазин","Купить хлеба", 14, Task.TaskStatus.NEW_TASK);
+        Task task2 = new Task("Сходить погулять","пройти много км пешком", 14, Task.TaskStatus.NEW_TASK);
+        Task task3 = new Task("в доту катнуть","+40 ммр", 15, Task.TaskStatus.NEW_TASK);
+
+        todo.add(task);
+        todo.add(task2);
+        todo.add(task3);
     }
 }

@@ -1,107 +1,122 @@
 package org.example;
+import lombok.Data;
+
 import java.util.*;
+@Data
+public class TaskService {
 
-public class ToDoSettings {
-
-    private final List<Tasks> task = new ArrayList<>();
+    private final List<Task> tasks = new ArrayList<>();
     private int timeWork = 0;
+    Scanner scanner = new Scanner(System.in);
 
     // для заполненности списка (не нужен)
-    public void add(Tasks task) {
-        this.task.add(task);
+    public void add(Task task) {
+        tasks.add(task);
     }
 
     // добавление задачи
-    public void addTask() {
+    public void add() {
         System.out.println("Добавление новой задачи\nИмя задачи:");
-        Scanner scanner = new Scanner(System.in);
         String name = scanner.nextLine();
         System.out.println("Описание задачи:");
         String description = scanner.nextLine();
         System.out.println("До какого числа нужно выполнить задачу:");
-        int timeWork = addTaskTimeWork();
+        int timeWork = getTimeWork();
 
-        Tasks tasks = new Tasks(name, description, timeWork, "new task");
-        this.task.add(tasks);
+        Task task = new Task(name, description, timeWork, Task.TaskStatus.NEW_TASK);
+        tasks.add(task);
         System.out.println("Task add");
     }
 
     // просмотр всех задач
-    public void printTasks() {
+    public void print() {
         System.out.println("Вот какие задачи есть:");
         System.out.println("Имя | Статус | До какого");
-        task.stream()
-                .map(tasks -> tasks.getTaskName() + " | "+ tasks.getTaskStatus() + " | " + tasks.getTimeWorks())
+        tasks.stream()
+                .map(task -> task.getName() + " | "+ task.getStatus() + " | " + task.getTime())
                 .forEach(System.out::println);
     }
 
     // изменение задачи
-    public void editTask(){
+    public void edit(){
+        boolean flag = false;
         System.out.println("Какую задачу нужно изменить?");
-        Scanner scanner = new Scanner(System.in);
         String editTaskName = scanner.nextLine(); // имя задачи которую редачим
         System.out.println("Новое имя задачи:");
         String newTaskName = scanner.nextLine();
         System.out.println("Описание задачи:");
         String newTaskDescription = scanner.nextLine();
-        System.out.println("Статус задачи: done / in work / new task");
-        String newStatus = scanner.nextLine();
-        System.out.println("Срок задачи (до какого числа):");
-        int newTimeWork = addTaskTimeWork();
+        System.out.println("Статус задачи: done / in_work / new_task");
+        Task.TaskStatus status = null;
+        while (!flag) {
+            try{
+                String newStatus = scanner.nextLine().toUpperCase().replace(" ", "_");
+                status = Task.TaskStatus.valueOf(newStatus);
+                flag = true;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Ошибка: введен неверный статус, попробуйте еще раз");
+            }
+        }
 
-        task.stream()
-                .filter(task -> task.getTaskName().equals(editTaskName))
+        System.out.println("Срок задачи (до какого числа):");
+        int newTimeWork = getTimeWork();
+
+        Task.TaskStatus newStatus = status;
+        tasks.stream()
+                .filter(task -> task.getName().equals(editTaskName))
                 .findFirst()
                 .ifPresentOrElse(task -> {
-                    task.setTaskName(newTaskName);
-                    task.setTaskDescription(newTaskDescription);
-                    task.setTimeWorks(newTimeWork);
-                    task.setTaskStatus(newStatus);
+                    task.setName(newTaskName);
+                    task.setDescription(newTaskDescription);
+                    task.setTime(newTimeWork);
+                    task.setStatus(newStatus);
                     System.out.println("Задача успешно изменена");
                 }, () -> System.out.println("Задача не найдена и ничего не изменилось"));
 
     }
 
     // удаление задачи
-    public void deleteTask(){
+    public void delete(){
         System.out.println("Какую задачу надо удалить?");
-        Scanner scanner = new Scanner(System.in);
         String deleteTaskName = scanner.nextLine();
-        task.removeIf(task -> task.getTaskName().equals(deleteTaskName));
+        tasks.removeIf(task -> task.getName().equals(deleteTaskName));
         System.out.println("Успешно удалено");
     }
 
     // фильтр задач по статусу
-    public void filterStatus(){
+    public void filterStatus() {
         System.out.println("""
         Сортировка по статусу задач, по какому статусу нужен фильтр?
         done - готовые задачи
-        new task - новые задачи
-        in work - в работе
+        new_task - новые задачи
+        in_work - в работе
         """);
-        Scanner scanner = new Scanner(System.in);
-        String filterStatus = scanner.nextLine().toLowerCase();
+        String filterStatus = scanner.nextLine().toUpperCase().replace(" ", "_");
 
-        task.stream()
-                .filter(task -> task.getTaskStatus().equals(filterStatus))
-                .map(tasks -> tasks.getTaskName() + " | " + tasks.getTaskStatus())
-                .forEach(System.out::println);
+        try {
+            Task.TaskStatus status = Task.TaskStatus.valueOf(filterStatus);
 
+            tasks.stream()
+                    .filter(task -> task.getStatus().equals(status))
+                    .map(task -> task.getName() + " | " + task.getStatus())
+                    .forEach(System.out::println);
+        } catch (IllegalArgumentException e) {
+            System.out.println("Ошибка: введен неверный статус");
+        }
     }
 
     // сортировка по сроку выполнения
     public void filterTimeWork(){
         System.out.println("Сортировка по времени, до какого числа нужно сделать задачу");
-        task.stream().sorted(Comparator.comparing(Tasks::getTimeWorks))
-                .map(tasks -> tasks.getTimeWorks() + " | " + tasks.getTaskName())
+        tasks.stream().sorted(Comparator.comparing(Task::getTime))
+                .map(task -> task.getTime() + " | " + task.getName())
                 .forEach(System.out::println);
     }
 
     // добавление срока задачи
-    private int addTaskTimeWork(){
+    private int getTimeWork(){
         boolean flag = false;
-        Scanner scanner = new Scanner(System.in);
-        while (!flag) {
+        while (!flag) { //was !flag
             try {
                 timeWork = scanner.nextInt();
                 if (timeWork >= 1 && timeWork <= 31) {
@@ -112,8 +127,17 @@ public class ToDoSettings {
                 scanner.nextLine();
             }
         }
+        scanner.nextLine();
         return timeWork;
     }
 
+    // конструктор для тестов
+    public TaskService(Scanner scanner) {
+        this.scanner = scanner;
+    }
+
+    // конструктор по умолчанию для класса Main
+    public TaskService() {
+    }
 
 }
